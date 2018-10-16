@@ -33,16 +33,19 @@ public class MongoColumnHandle
     private final String name;
     private final Type type;
     private final boolean hidden;
+    private final boolean objectIdType;
 
     @JsonCreator
     public MongoColumnHandle(
             @JsonProperty("name") String name,
             @JsonProperty("columnType") Type type,
-            @JsonProperty("hidden") boolean hidden)
+            @JsonProperty("hidden") boolean hidden,
+            @JsonProperty("objectIdType") boolean objectIdType)
     {
         this.name = requireNonNull(name, "name is null");
         this.type = requireNonNull(type, "columnType is null");
         this.hidden = hidden;
+        this.objectIdType = objectIdType;
     }
 
     @JsonProperty
@@ -63,16 +66,24 @@ public class MongoColumnHandle
         return hidden;
     }
 
+    @JsonProperty
+    public boolean isObjectIdType()
+    {
+        return objectIdType;
+    }
+
     public ColumnMetadata toColumnMetadata()
     {
-        return new ColumnMetadata(name, type, null, hidden);
+//        return new ColumnMetadata(name, type, null, hidden);
+        return new ColumnMetadata(name, type, null, String.valueOf(objectIdType), hidden);
     }
 
     public Document getDocument()
     {
         return new Document().append("name", name)
                 .append("type", type.getTypeSignature().toString())
-                .append("hidden", hidden);
+                .append("hidden", hidden)
+                .append("objectIdType", objectIdType);
     }
 
     @Override
@@ -103,6 +114,7 @@ public class MongoColumnHandle
                 .add("name", name)
                 .add("type", type)
                 .add("hidden", hidden)
+                .add("objectIdType", objectIdType)
                 .toString();
     }
 }

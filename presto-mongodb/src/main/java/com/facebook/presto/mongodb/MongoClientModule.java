@@ -62,7 +62,8 @@ public class MongoClientModule
             options.requiredReplicaSetName(config.getRequiredReplicaSetName());
         }
 
-        MongoClient client = new MongoClient(config.getSeeds(), config.getCredentials(), options.build());
+//        MongoClient client = new MongoClient(config.getSeeds(), config.getCredentials(), options.build());
+        MongoClient client = new MongoClient(config.getSeeds().get(0), config.getCredentials(), options.build());
 
         return new MongoSession(
                 typeManager,

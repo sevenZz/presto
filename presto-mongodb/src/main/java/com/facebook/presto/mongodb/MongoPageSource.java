@@ -121,7 +121,7 @@ public class MongoPageSource
             pageBuilder.declarePosition();
             for (int column = 0; column < columnTypes.size(); column++) {
                 BlockBuilder output = pageBuilder.getBlockBuilder(column);
-                appendTo(columnTypes.get(column), currentDoc.get(columnNames.get(column)), output);
+                appendTo(columnTypes.get(column), currentDoc.get(columnNames.get(column)), output, "_id".equalsIgnoreCase(columnNames.get(column)));
             }
         }
 
@@ -130,7 +130,11 @@ public class MongoPageSource
         return page;
     }
 
-    private void appendTo(Type type, Object value, BlockBuilder output)
+    private void appendTo(Type type, Object value, BlockBuilder output) {
+        appendTo(type, value, output, false);
+    }
+
+    private void appendTo(Type type, Object value, BlockBuilder output, boolean isId)
     {
         if (value == null) {
             output.appendNull();
@@ -167,7 +171,7 @@ public class MongoPageSource
                 type.writeDouble(output, ((Number) value).doubleValue());
             }
             else if (javaType == Slice.class) {
-                writeSlice(output, type, value);
+                writeSlice(output, type, value, isId);
             }
             else if (javaType == Block.class) {
                 writeBlock(output, type, value);
@@ -193,10 +197,14 @@ public class MongoPageSource
         return String.valueOf(value);
     }
 
-    private void writeSlice(BlockBuilder output, Type type, Object value)
+    private void writeSlice(BlockBuilder output, Type type, Object value, boolean objectIdType)
     {
         String base = type.getTypeSignature().getBase();
-        if (base.equals(StandardTypes.VARCHAR)) {
+        if (objectIdType) {
+            ObjectId id = (ObjectId) value;
+            type.writeSlice(output, utf8Slice(((ObjectId) id).toHexString()));
+        }
+        else if (base.equals(StandardTypes.VARCHAR)) {
             type.writeSlice(output, utf8Slice(toVarcharValue(value)));
         }
         else if (type.equals(OBJECT_ID)) {
