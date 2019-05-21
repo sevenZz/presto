@@ -8,18 +8,32 @@ import javax.validation.constraints.NotNull;
 import java.net.URI;
 
 public class DruidConfig {
-  private URI metadata;
+  private URI datasourceMetadata;
+  private URI columnMetadata;
 
   @NotNull
-  public URI getMetadata()
+  public URI getDatasourceMetadata()
   {
-    return metadata;
+    return datasourceMetadata;
   }
 
-  @Config("metadata-uri")
-  public DruidConfig setMetadata(URI metadata)
+  @NotNull
+  public URI getColumnMetadata()
   {
-    this.metadata = metadata;
+    return columnMetadata;
+  }
+
+  @Config("metadata-datasource-uri")
+  public DruidConfig setDatasourceMetadata(URI datasourceMetadata)
+  {
+    this.datasourceMetadata = datasourceMetadata;
+    return this;
+  }
+
+  @Config("metadata-column-uri")
+  public DruidConfig setColumnMetadata(URI columnMetadata)
+  {
+    this.columnMetadata = columnMetadata;
     return this;
   }
 }
